@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="windows-1256">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>إنشاء حساب - 1999</title>
+    <style>
+        body {
+            background-color: #c0c0c0;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJUlEQVQoU2NkYGAwZkADGAskB4NYwSiBdAykA8S5E4gRzA8AIY8HAXlQ9rMAAAAASUVORK5CYII=');
+            margin: 0;
+            padding: 20px;
+            font-family: "Arial", "Times New Roman", serif;
+            color: #000000;
+        }
+        
+        .main-frame {
+            width: 800px;
+            margin: 20px auto;
+            border: 2px outset #808080;
+            background-color: #c0c0c0;
+            padding: 2px;
+        }
+        
+        .title-bar {
+            background: linear-gradient(to right, #000080, #1084d0);
+            color: white;
+            padding: 4px 8px;
+            font-weight: bold;
+            font-size: 13px;
+            border: 1px inset #808080;
+        }
+        
+        .content {
+            background-color: #ffffff;
+            border: 2px inset #808080;
+            padding: 30px;
+            min-height: 500px;
+        }
+        
+        .back-link {
+            margin-bottom: 20px;
+        }
+        
+        .back-link a {
+            color: #000080;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .register-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #000080;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 2px inset #808080;
+            background-color: white;
+            font-size: 14px;
+            font-family: "Courier New", monospace;
+        }
+        
+        .form-group input:focus {
+            border-color: #000080;
+            outline: none;
+        }
+        
+        .register-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #008000;
+            color: white;
+            border: 3px outset #00cc00;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .register-button:hover {
+            background-color: #00aa00;
+            border: 3px inset #00cc00;
+        }
+        
+        .register-button:active {
+            background-color: #006600;
+        }
+        
+        .message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px groove #808080;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        
+        .success {
+            background-color: #ccffcc;
+            color: #006600;
+            border-color: #00cc00;
+        }
+        
+        .error {
+            background-color: #ffcccc;
+            color: #cc0000;
+            border-color: #ff0000;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px dotted #808080;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 10px;
+            background-color: #c0c0c0;
+            border-top: 2px groove #808080;
+            font-size: 11px;
+            color: #404040;
+        }
+        
+        .datetime {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #000000;
+            color: #00ff00;
+            padding: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 12px;
+            border: 1px solid #00ff00;
+        }
+        
+        .terms {
+            background-color: #ffffcc;
+            border: 1px dashed #808080;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body onload="updateDateTime()">
+    
+    <div class="datetime" id="datetime">00:00:00</div>
+    
+    <div class="main-frame">
+        <div class="title-bar">
+            📝 إنشاء حساب جديد - نظام التحقق 1999
+        </div>
+        
+        <div class="content">
+            <div class="back-link">
+                <a href="index.html">← العودة للصفحة الرئيسية</a>
+            </div>
+            
+            <div class="message" id="message"></div>
+            
+            <div class="register-form">
+                <h2 style="color: #000080; text-align: center; margin-bottom: 20px;">
+                    بيانات الحساب الجديد
+                </h2>
+                
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>👤 الاسم الكامل:</label>
+                        <input type="text" id="fullName" required placeholder="أدخل اسمك الكامل">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📧 البريد الإلكتروني:</label>
+                        <input type="text" id="email" required placeholder="user@hotmail.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>🔑 كلمة المرور:</label>
+                        <input type="password" id="password" required>
+                        <div style="font-size: 11px; color: #808080; margin-top: 2px;">
+                            (6 أحرف على الأقل)
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>✓ تأكيد كلمة المرور:</label>
+                        <input type="password" id="confirmPassword" required>
+                    </div>
+                    
+                    <div class="terms">
+                        <input type="checkbox" id="agreeTerms" required>
+                        <label for="agreeTerms">أوافق على شروط الاستخدام وسياسة الخصوصية</label>
+                    </div>
+                    
+                    <button type="submit" class="register-button">
+                        🚀 إنشاء الحساب
+                    </button>
+                </form>
+                
+                <div class="login-link">
+                    لديك حساب already؟ <a href="login.html">🔐 تسجيل الدخول</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>© 1999 نظام التحقق - الإصدار 1.0</p>
+        <p>جميع الحقوق محفوظة</p>
+    </div>
+
+    <script>
+        // تحديث الوقت
+        function updateDateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('ar-SA');
+            document.getElementById('datetime').textContent = time;
+            setTimeout(updateDateTime, 1000);
+        }
+        
+        // عرض رسالة
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+        }
+        
+        // معالجة إنشاء الحساب
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // التحقق من الحقول
+            if (!fullName || !email || !password || !confirmPassword) {
+                showMessage('⚠️ يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+            
+            // التحقق من البريد الإلكتروني
+            if (!email.includes('@')) {
+                showMessage('⚠️ بريد إلكتروني غير صالح', 'error');
+                return;
+            }
+            
+            // التحقق من كلمة المرور
+            if (password.length < 6) {
+                showMessage('⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+                return;
+            }
+            
+            // التحقق من تطابق كلمات المرور
+            if (password !== confirmPassword) {
+                showMessage('⚠️ كلمات المرور غير متطابقة', 'error');
+                return;
+            }
+            
+            // جلب المستخدمين الحاليين
+            let users = JSON.parse(localStorage.getItem('users1999') || '[]');
+            
+            // التحقق إذا كان البريد مستخدم مسبقاً
+            if (users.some(user => user.email === email)) {
+                showMessage('⚠️ هذا البريد الإلكتروني مستخدم مسبقاً', 'error');
+                return;
+            }
+            
+            // إنشاء المستخدم الجديد
+            const newUser = {
+                id: Date.now(),
+                fullName: fullName,
+                email: email,
+                password: password,
+                createdAt: new Date().toLocaleString('ar-SA'),
+                verified: false
+            };
+            
+            // إضافة المستخدم
+            users.push(newUser);
+            localStorage.setItem('users1999', JSON.stringify(users));
+            
+            // تسجيل الدخول تلقائياً
+            localStorage.setItem('currentUser1999', JSON.stringify(newUser));
+            
+            showMessage('✅ تم إنشاء الحساب بنجاح! جاري التوجيه...', 'success');
+            
+            // الانتقال إلى صفحة التحقق بعد ثانيتين
+            setTimeout(() => {
+                window.location.href = 'verify.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
