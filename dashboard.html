@@ -250,6 +250,81 @@
             background-color: #ffffcc;
             border-color: #ffcc00;
         }
+        
+        /* قسم تعديل الملف الشخصي */
+        .edit-section {
+            background-color: #f8f8f8;
+            border: 2px groove #808080;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .edit-form {
+            margin-top: 20px;
+        }
+        
+        .edit-form input[type="text"],
+        .edit-form input[type="password"],
+        .edit-form input[type="email"],
+        .edit-form input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 2px inset #808080;
+            background-color: white;
+            font-family: "Courier New", monospace;
+        }
+        
+        .edit-form label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-weight: bold;
+            color: #000080;
+        }
+        
+        /* صورة الملف الشخصي */
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #000080;
+            background-color: #c0c0c0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 10px auto;
+            overflow: hidden;
+        }
+        
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* قسم حذف الحساب */
+        .delete-section {
+            background-color: #ffe6e6;
+            border: 2px groove #cc0000;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .delete-section h4 {
+            color: #cc0000;
+            margin-top: 0;
+        }
+        
+        .confirm-delete {
+            background-color: #cc0000 !important;
+            border-color: #ff4040 !important;
+            margin-top: 15px;
+        }
+        
+        .confirm-delete:hover {
+            background-color: #ff0000 !important;
+        }
     </style>
 </head>
 <body onload="loadDashboard()">
@@ -267,17 +342,19 @@
                 <h3>👤 القائمة</h3>
                 <ul>
                     <li><a href="#profile" onclick="showSection('profile')">📋 الملف الشخصي</a></li>
+                    <li><a href="#editProfile" onclick="loadEditProfile()">✏️ تعديل الملف</a></li>
+                    <li><a href="#changePassword" onclick="showSection('changePassword')">🔐 تغيير كلمة المرور</a></li>
+                    <li><a href="#deleteAccount" onclick="showSection('deleteAccount')">🗑️ حذف الحساب</a></li>
                     <li><a href="#stats" onclick="showSection('stats')">📊 الإحصائيات</a></li>
                     <li><a href="#settings" onclick="showSection('settings')">⚙️ الإعدادات</a></li>
                     <li><a href="#activity" onclick="showSection('activity')">📝 النشاطات</a></li>
-                    <li><a href="#messages" onclick="showSection('messages')">📨 الرسائل</a></li>
                     <li><a href="#" onclick="logout()">🚪 تسجيل الخروج</a></li>
                 </ul>
                 
                 <h3 style="margin-top: 30px;">🔧 أدوات سريعة</h3>
                 <ul>
                     <li><a href="index.html">🏠 الرئيسية</a></li>
-                    <li><a href="#" onclick="changePassword()">🔐 تغيير كلمة المرور</a></li>
+                    <li><a href="verify.html">🔐 التحقق من الحساب</a></li>
                     <li><a href="#" onclick="exportData()">💾 حفظ البيانات</a></li>
                     <li><a href="#" onclick="printPage()">🖨️ طباعة</a></li>
                 </ul>
@@ -304,6 +381,13 @@
                             📋 الملف الشخصي
                         </h3>
                         
+                        <!-- صورة الملف الشخصي -->
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div class="profile-picture" id="profilePicture">
+                                👤
+                            </div>
+                        </div>
+                        
                         <table style="width: 100%; margin: 20px 0;">
                             <tr>
                                 <td width="30%" style="padding: 10px; font-weight: bold;">👤 الاسم الكامل:</td>
@@ -328,12 +412,133 @@
                         </table>
                         
                         <div style="text-align: center; margin-top: 30px;">
-                            <button class="action-button" onclick="editProfile()">
+                            <button class="action-button" onclick="loadEditProfile()">
                                 ✏️ تعديل الملف الشخصي
                             </button>
                             <button class="action-button" onclick="verifyAccount()">
                                 🔐 التحقق من الحساب
                             </button>
+                            <button class="action-button" onclick="showSection('changePassword')">
+                                🔄 تغيير كلمة المرور
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- قسم تعديل الملف الشخصي -->
+                    <div id="editProfile" class="section" style="display: none;">
+                        <h3 style="color: #000080; border-bottom: 2px groove #808080; padding-bottom: 5px;">
+                            ✏️ تعديل الملف الشخصي
+                        </h3>
+                        
+                        <div class="edit-section">
+                            <!-- صورة الملف الشخصي -->
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <div class="profile-picture" id="currentProfilePic">
+                                    👤
+                                </div>
+                                <div style="margin-top: 10px; font-size: 12px; color: #808080;">
+                                    صورة الملف الشخصي
+                                </div>
+                            </div>
+                            
+                            <!-- نموذج التعديل -->
+                            <div class="edit-form">
+                                <form id="editProfileForm">
+                                    <label>👤 الاسم الكامل:</label>
+                                    <input type="text" id="editFullName" value="" required>
+                                    
+                                    <label>📧 البريد الإلكتروني:</label>
+                                    <input type="email" id="editEmail" value="" required>
+                                    
+                                    <label>🖼️ تغيير الصورة:</label>
+                                    <input type="file" id="profileImage" accept="image/*" onchange="previewImage(event)">
+                                    <div style="font-size: 11px; color: #808080; margin: 5px 0;">
+                                        يمكنك تحميل صورة شخصية (JPG, PNG)
+                                    </div>
+                                    
+                                    <div style="text-align: center; margin-top: 30px;">
+                                        <button type="submit" class="action-button">
+                                            💾 حفظ التغييرات
+                                        </button>
+                                        <button type="button" class="action-button" onclick="showSection('profile')">
+                                            ↩️ إلغاء
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- قسم تغيير كلمة المرور -->
+                    <div id="changePassword" class="section" style="display: none;">
+                        <h3 style="color: #000080; border-bottom: 2px groove #808080; padding-bottom: 5px;">
+                            🔐 تغيير كلمة المرور
+                        </h3>
+                        
+                        <div class="edit-section">
+                            <div class="edit-form">
+                                <form id="changePasswordForm">
+                                    <label>🔑 كلمة المرور الحالية:</label>
+                                    <input type="password" id="currentPassword" required>
+                                    
+                                    <label>🆕 كلمة المرور الجديدة:</label>
+                                    <input type="password" id="newPassword" required>
+                                    <div style="font-size: 11px; color: #808080;">
+                                        (6 أحرف على الأقل)
+                                    </div>
+                                    
+                                    <label>✓ تأكيد كلمة المرور الجديدة:</label>
+                                    <input type="password" id="confirmNewPassword" required>
+                                    
+                                    <div style="text-align: center; margin-top: 30px;">
+                                        <button type="submit" class="action-button">
+                                            🔄 تغيير كلمة المرور
+                                        </button>
+                                        <button type="button" class="action-button" onclick="showSection('profile')">
+                                            ↩️ إلغاء
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- قسم حذف الحساب -->
+                    <div id="deleteAccount" class="section" style="display: none;">
+                        <h3 style="color: #cc0000; border-bottom: 2px groove #cc0000; padding-bottom: 5px;">
+                            🗑️ حذف الحساب
+                        </h3>
+                        
+                        <div class="delete-section">
+                            <h4>⚠️ تحذير هام!</h4>
+                            <p>عند حذف حسابك:</p>
+                            <ul style="margin-right: 20px;">
+                                <li>❌ جميع بياناتك سيتم حذفها نهائياً</li>
+                                <li>❌ لن تتمكن من استرجاع حسابك</li>
+                                <li>❌ ستحتاج إلى إنشاء حساب جديد</li>
+                                <li>❌ جميع النشاطات ستُحذف</li>
+                            </ul>
+                            
+                            <div style="margin-top: 20px;">
+                                <input type="checkbox" id="confirmDelete">
+                                <label for="confirmDelete" style="color: #cc0000; font-weight: bold;">
+                                    أنا أدرك أن حذف الحساب نهائي ولا يمكن التراجع عنه
+                                </label>
+                            </div>
+                            
+                            <div style="margin-top: 30px;">
+                                <label>🔐 أدخل كلمة المرور للتأكيد:</label>
+                                <input type="password" id="deletePassword" style="width: 50%;">
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 30px;">
+                                <button onclick="deleteAccount()" class="action-button confirm-delete" disabled>
+                                    🗑️ حذف الحساب نهائياً
+                                </button>
+                                <button type="button" class="action-button" onclick="showSection('profile')">
+                                    ↩️ العودة للأمان
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -426,23 +631,6 @@
                             </button>
                         </div>
                     </div>
-                    
-                    <!-- قسم الرسائل -->
-                    <div id="messages" class="section" style="display: none;">
-                        <h3 style="color: #000080; border-bottom: 2px groove #808080; padding-bottom: 5px;">
-                            📨 صندوق الرسائل
-                        </h3>
-                        
-                        <div class="message warning">
-                            📭 صندوق الرسائل فارغ حالياً
-                        </div>
-                        
-                        <div style="text-align: center; margin-top: 30px;">
-                            <button class="action-button" onclick="composeMessage()">
-                                ✉️ كتابة رسالة جديدة
-                            </button>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- شريط الحالة -->
@@ -506,6 +694,11 @@
             
             // تحديث شريط الحالة
             document.getElementById('statusUser').textContent = currentUser.fullName;
+            
+            // إعدادات حذف الحساب
+            document.getElementById('confirmDelete').addEventListener('change', function() {
+                document.querySelector('.confirm-delete').disabled = !this.checked;
+            });
         }
         
         // تحميل بيانات المستخدم
@@ -542,6 +735,12 @@
             // وقت الدخول
             const now = new Date();
             document.getElementById('statLoginTime').textContent = now.toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'});
+            
+            // تحميل صورة الملف الشخصي
+            const profilePic = localStorage.getItem(`profilePic_${currentUser.email}`);
+            if (profilePic) {
+                document.getElementById('profilePicture').innerHTML = `<img src="${profilePic}" alt="صورة الملف الشخصي">`;
+            }
         }
         
         // تحميل النشاطات
@@ -589,17 +788,21 @@
             document.getElementById(sectionId).style.display = 'block';
             
             // إضافة نشاط
-            addActivity(`عرض قسم: ${getSectionName(sectionId)}`);
+            if (sectionId !== 'profile') {
+                addActivity(`عرض قسم: ${getSectionName(sectionId)}`);
+            }
         }
         
         // الحصول على اسم القسم
         function getSectionName(sectionId) {
             const names = {
                 'profile': 'الملف الشخصي',
+                'editProfile': 'تعديل الملف الشخصي',
+                'changePassword': 'تغيير كلمة المرور',
+                'deleteAccount': 'حذف الحساب',
                 'stats': 'الإحصائيات',
                 'settings': 'الإعدادات',
-                'activity': 'النشاطات',
-                'messages': 'الرسائل'
+                'activity': 'النشاطات'
             };
             return names[sectionId] || sectionId;
         }
@@ -622,32 +825,94 @@
             document.getElementById('statActivities').textContent = activities.length;
         }
         
-        // تعديل الملف الشخصي
-        function editProfile() {
-            const newName = prompt('أدخل الاسم الجديد:', currentUser.fullName);
-            if (newName && newName.trim() !== '') {
-                // تحديث في localStorage
-                let users = JSON.parse(localStorage.getItem('users1999') || '[]');
-                const userIndex = users.findIndex(u => u.email === currentUser.email);
-                
-                if (userIndex !== -1) {
-                    users[userIndex].fullName = newName.trim();
-                    localStorage.setItem('users1999', JSON.stringify(users));
+        // تحميل بيانات تعديل الملف الشخصي
+        function loadEditProfile() {
+            // ملء الحقول بقيم المستخدم الحالي
+            document.getElementById('editFullName').value = currentUser.fullName;
+            document.getElementById('editEmail').value = currentUser.email;
+            
+            // تحميل صورة الملف الشخصي إن وجدت
+            const profilePic = localStorage.getItem(`profilePic_${currentUser.email}`);
+            const previewElement = document.getElementById('currentProfilePic');
+            if (profilePic) {
+                previewElement.innerHTML = `<img src="${profilePic}" alt="صورة الملف الشخصي">`;
+            } else {
+                previewElement.innerHTML = '👤';
+            }
+            
+            // عرض القسم
+            showSection('editProfile');
+        }
+        
+        // معاينة الصورة قبل التحميل
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const preview = document.getElementById('currentProfilePic');
+                preview.innerHTML = `<img src="${reader.result}" alt="صورة معاينة">`;
+            }
+            reader.readAsDataURL(event.target.files[0]);
+        }
+        
+        // حفظ تعديلات الملف الشخصي
+        document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newName = document.getElementById('editFullName').value.trim();
+            const newEmail = document.getElementById('editEmail').value.trim();
+            
+            // التحقق من البريد الإلكتروني
+            if (!newEmail.includes('@')) {
+                alert('❌ بريد إلكتروني غير صالح!');
+                return;
+            }
+            
+            // التحقق إذا كان البريد الجديد مستخدم من قبل
+            if (newEmail !== currentUser.email) {
+                const users = JSON.parse(localStorage.getItem('users1999') || '[]');
+                if (users.some(user => user.email === newEmail && user.email !== currentUser.email)) {
+                    alert('❌ هذا البريد الإلكتروني مستخدم من قبل!');
+                    return;
+                }
+            }
+            
+            // تحديث في localStorage
+            let users = JSON.parse(localStorage.getItem('users1999') || '[]');
+            const userIndex = users.findIndex(u => u.email === currentUser.email);
+            
+            if (userIndex !== -1) {
+                // حفظ الصورة إن وجدت
+                const imageInput = document.getElementById('profileImage');
+                if (imageInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        localStorage.setItem(`profilePic_${newEmail}`, e.target.result);
+                    };
+                    reader.readAsDataURL(imageInput.files[0]);
                 }
                 
-                // تحديث المستخدم الحالي
-                currentUser.fullName = newName.trim();
-                localStorage.setItem('currentUser1999', JSON.stringify(currentUser));
-                
-                // تحديث العرض
-                loadUserData();
-                
-                // إضافة نشاط
-                addActivity('تعديل الملف الشخصي');
-                
-                alert('✅ تم تحديث الملف الشخصي بنجاح!');
+                // تحديث البيانات
+                users[userIndex].fullName = newName;
+                users[userIndex].email = newEmail;
+                localStorage.setItem('users1999', JSON.stringify(users));
             }
-        }
+            
+            // تحديث المستخدم الحالي
+            currentUser.fullName = newName;
+            currentUser.email = newEmail;
+            localStorage.setItem('currentUser1999', JSON.stringify(currentUser));
+            
+            // إضافة نشاط
+            addActivity('تعديل بيانات الملف الشخصي');
+            
+            // تحديث العرض
+            loadUserData();
+            
+            // العودة لصفحة الملف الشخصي
+            showSection('profile');
+            
+            alert('✅ تم تحديث الملف الشخصي بنجاح!');
+        });
         
         // التحقق من الحساب
         function verifyAccount() {
@@ -658,6 +923,95 @@
                     window.location.href = 'verify.html';
                 }
             }
+        }
+        
+        // تغيير كلمة المرور
+        document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const currentPass = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmNewPassword').value;
+            
+            // التحقق من كلمة المرور الحالية
+            if (currentPass !== currentUser.password) {
+                alert('❌ كلمة المرور الحالية غير صحيحة!');
+                return;
+            }
+            
+            // التحقق من كلمة المرور الجديدة
+            if (newPass.length < 6) {
+                alert('❌ كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل!');
+                return;
+            }
+            
+            // التحقق من تطابق كلمات المرور
+            if (newPass !== confirmPass) {
+                alert('❌ كلمات المرور غير متطابقة!');
+                return;
+            }
+            
+            // منع استخدام نفس كلمة المرور
+            if (newPass === currentPass) {
+                alert('⚠️ كلمة المرور الجديدة يجب أن تكون مختلفة عن الحالية!');
+                return;
+            }
+            
+            // تحديث في localStorage
+            let users = JSON.parse(localStorage.getItem('users1999') || '[]');
+            const userIndex = users.findIndex(u => u.email === currentUser.email);
+            
+            if (userIndex !== -1) {
+                users[userIndex].password = newPass;
+                localStorage.setItem('users1999', JSON.stringify(users));
+            }
+            
+            // تحديث المستخدم الحالي
+            currentUser.password = newPass;
+            localStorage.setItem('currentUser1999', JSON.stringify(currentUser));
+            
+            // إضافة نشاط
+            addActivity('تغيير كلمة المرور');
+            
+            // إعادة تعيين النموذج
+            document.getElementById('changePasswordForm').reset();
+            
+            // العودة لصفحة الملف الشخصي
+            showSection('profile');
+            
+            alert('✅ تم تغيير كلمة المرور بنجاح!');
+        });
+        
+        // حذف الحساب
+        function deleteAccount() {
+            const password = document.getElementById('deletePassword').value;
+            
+            // التحقق من كلمة المرور
+            if (password !== currentUser.password) {
+                alert('❌ كلمة المرور غير صحيحة!');
+                return;
+            }
+            
+            if (!confirm('⚠️ هل أنت متأكد تماماً من حذف حسابك؟ هذا الإجراء نهائي ولا يمكن التراجع عنه!')) {
+                return;
+            }
+            
+            // حذف من قائمة المستخدمين
+            let users = JSON.parse(localStorage.getItem('users1999') || '[]');
+            users = users.filter(user => user.email !== currentUser.email);
+            localStorage.setItem('users1999', JSON.stringify(users));
+            
+            // حذف الصورة الشخصية
+            localStorage.removeItem(`profilePic_${currentUser.email}`);
+            
+            // حذف المستخدم الحالي
+            localStorage.removeItem('currentUser1999');
+            
+            // رسالة وداع
+            alert('👋 تم حذف حسابك بنجاح. نأسف لرحيلك!');
+            
+            // التوجيه إلى الصفحة الرئيسية
+            window.location.href = 'index.html';
         }
         
         // حفظ الإعدادات
@@ -680,48 +1034,6 @@
         function refreshActivity() {
             loadActivities();
             alert('✅ تم تحديث سجل النشاطات!');
-        }
-        
-        // كتابة رسالة جديدة
-        function composeMessage() {
-            alert('🚧 هذه الميزة قيد التطوير!');
-        }
-        
-        // تغيير كلمة المرور
-        function changePassword() {
-            const oldPass = prompt('أدخل كلمة المرور الحالية:');
-            if (oldPass !== currentUser.password) {
-                alert('❌ كلمة المرور الحالية غير صحيحة!');
-                return;
-            }
-            
-            const newPass = prompt('أدخل كلمة المرور الجديدة (6 أحرف على الأقل):');
-            if (!newPass || newPass.length < 6) {
-                alert('❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل!');
-                return;
-            }
-            
-            const confirmPass = prompt('أعد إدخال كلمة المرور الجديدة:');
-            if (newPass !== confirmPass) {
-                alert('❌ كلمات المرور غير متطابقة!');
-                return;
-            }
-            
-            // تحديث في localStorage
-            let users = JSON.parse(localStorage.getItem('users1999') || '[]');
-            const userIndex = users.findIndex(u => u.email === currentUser.email);
-            
-            if (userIndex !== -1) {
-                users[userIndex].password = newPass;
-                localStorage.setItem('users1999', JSON.stringify(users));
-            }
-            
-            // تحديث المستخدم الحالي
-            currentUser.password = newPass;
-            localStorage.setItem('currentUser1999', JSON.stringify(currentUser));
-            
-            addActivity('تغيير كلمة المرور');
-            alert('✅ تم تغيير كلمة المرور بنجاح!');
         }
         
         // حفظ البيانات
