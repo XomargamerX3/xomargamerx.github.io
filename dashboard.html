@@ -325,6 +325,105 @@
         .confirm-delete:hover {
             background-color: #ff0000 !important;
         }
+        
+        /* قسم الحالة والاتصال (المضافة حديثاً) */
+        .connection-status {
+            margin: 15px 0;
+            padding: 10px;
+            border: 2px groove #808080;
+            background-color: #f0f0f0;
+        }
+        
+        .connection-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        .online {
+            background-color: #00ff00;
+            box-shadow: 0 0 8px #00ff00;
+        }
+        
+        .offline {
+            background-color: #ff0000;
+            box-shadow: 0 0 8px #ff0000;
+        }
+        
+        .away {
+            background-color: #ffff00;
+            box-shadow: 0 0 8px #ffff00;
+        }
+        
+        .connected-users {
+            background-color: #f8f8f8;
+            border: 2px groove #808080;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .connected-users h4 {
+            color: #000080;
+            border-bottom: 1px dotted #808080;
+            padding-bottom: 8px;
+            margin-top: 0;
+        }
+        
+        .user-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        
+        .user-item {
+            padding: 8px;
+            border-bottom: 1px dotted #c0c0c0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #000080;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: bold;
+            color: #000080;
+        }
+        
+        .user-status {
+            font-size: 11px;
+            color: #808080;
+        }
+        
+        .connection-controls {
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            border: 2px groove #808080;
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body onload="loadDashboard()">
@@ -343,6 +442,7 @@
                 <ul>
                     <li><a href="#profile" onclick="showSection('profile')">📋 الملف الشخصي</a></li>
                     <li><a href="#editProfile" onclick="loadEditProfile()">✏️ تعديل الملف</a></li>
+                    <li><a href="#connection" onclick="showSection('connection')">📡 حالة الاتصال</a></li>
                     <li><a href="#changePassword" onclick="showSection('changePassword')">🔐 تغيير كلمة المرور</a></li>
                     <li><a href="#deleteAccount" onclick="showSection('deleteAccount')">🗑️ حذف الحساب</a></li>
                     <li><a href="#stats" onclick="showSection('stats')">📊 الإحصائيات</a></li>
@@ -358,6 +458,15 @@
                     <li><a href="#" onclick="exportData()">💾 حفظ البيانات</a></li>
                     <li><a href="#" onclick="printPage()">🖨️ طباعة</a></li>
                 </ul>
+                
+                <!-- قسم الحالة والاتصال في القائمة الجانبية -->
+                <div style="margin-top: 20px; padding: 10px; background-color: #000000; border: 1px solid #00ff00;">
+                    <div style="color: #00ff00; font-family: 'Courier New', monospace; font-size: 11px; text-align: center;">
+                        <div>🖧 حالة الشبكة:</div>
+                        <div id="sidebarStatus">جارٍ التحميل...</div>
+                        <div style="margin-top: 5px;" id="sidebarUsersCount">👥 0 متصل</div>
+                    </div>
+                </div>
             </div>
             
             <!-- المحتوى الرئيسي -->
@@ -370,6 +479,16 @@
                     <!-- حالة التحقق -->
                     <div class="verification-status" id="verificationStatus">
                         ⏳ جاري تحميل حالة الحساب...
+                    </div>
+                    
+                    <!-- مؤشر حالة الاتصال (المضافة حديثاً) -->
+                    <div class="connection-status">
+                        <span style="font-weight: bold;">🌐 حالة الاتصال:</span>
+                        <span class="connection-indicator" id="connectionIndicator"></span>
+                        <span id="connectionStatusText">جارٍ التحقق...</span>
+                        <div style="font-size: 12px; color: #808080; margin-top: 5px;">
+                            <span id="onlineUsersCount">0</span> مستخدم متصل حالياً
+                        </div>
                     </div>
                 </div>
                 
@@ -406,6 +525,10 @@
                                 <td style="padding: 10px;" id="profileStatus">-</td>
                             </tr>
                             <tr>
+                                <td style="padding: 10px; font-weight: bold;">🌐 حالة الاتصال:</td>
+                                <td style="padding: 10px;" id="profileConnectionStatus">-</td>
+                            </tr>
+                            <tr>
                                 <td style="padding: 10px; font-weight: bold;">🆔 رقم العضوية:</td>
                                 <td style="padding: 10px;" id="profileID">-</td>
                             </tr>
@@ -418,9 +541,88 @@
                             <button class="action-button" onclick="verifyAccount()">
                                 🔐 التحقق من الحساب
                             </button>
-                            <button class="action-button" onclick="showSection('changePassword')">
-                                🔄 تغيير كلمة المرور
+                            <button class="action-button" onclick="showSection('connection')">
+                                📡 حالة الاتصال
                             </button>
+                        </div>
+                    </div>
+                    
+                    <!-- قسم حالة الاتصال (المضافة حديثاً) -->
+                    <div id="connection" class="section" style="display: none;">
+                        <h3 style="color: #000080; border-bottom: 2px groove #808080; padding-bottom: 5px;">
+                            📡 حالة الاتصال
+                        </h3>
+                        
+                        <div class="connection-controls">
+                            <h4>🔌 التحكم في حالة الاتصال</h4>
+                            <div style="margin: 15px 0;">
+                                <button class="action-button" onclick="setOnlineStatus('online')">
+                                    <span class="connection-indicator online"></span> متصل
+                                </button>
+                                <button class="action-button" style="background-color: #ffff00; color: #000000; border-color: #cccc00;" onclick="setOnlineStatus('away')">
+                                    <span class="connection-indicator away"></span> غير متاح
+                                </button>
+                                <button class="action-button danger-button" onclick="setOnlineStatus('offline')">
+                                    <span class="connection-indicator offline"></span> غير متصل
+                                </button>
+                            </div>
+                            
+                            <div style="margin: 20px 0; padding: 15px; background-color: #e8e8ff; border: 2px groove #808080;">
+                                <div style="font-weight: bold;">📊 إحصائيات الاتصال:</div>
+                                <div style="margin-top: 10px;">
+                                    <span>🟢 متصلون الآن: <span id="onlineCount">0</span></span> |
+                                    <span>🟡 غير متاحين: <span id="awayCount">0</span></span> |
+                                    <span>🔴 غير متصلين: <span id="offlineCount">0</span></span>
+                                </div>
+                                <div style="margin-top: 10px; font-size: 12px;">
+                                    إجمالي المستخدمين: <span id="totalUsersCount">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- قائمة المستخدمين المتصلين -->
+                        <div class="connected-users">
+                            <h4>👥 المستخدمون المتصلون الآن (<span id="connectedCount">0</span>)</h4>
+                            
+                            <div id="connectedUsersList" class="user-list">
+                                <!-- سيتم ملؤها بالجافاسكريبت -->
+                                <div style="text-align: center; padding: 20px; color: #808080;">
+                                    جاري تحميل قائمة المستخدمين...
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 15px;">
+                                <button class="action-button" onclick="refreshConnectedUsers()">
+                                    🔄 تحديث القائمة
+                                </button>
+                                <button class="action-button" onclick="testConnection()">
+                                    📡 اختبار الاتصال
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- معلومات الاتصال -->
+                        <div style="background-color: #f0f0f0; border: 2px groove #808080; padding: 15px; margin: 20px 0;">
+                            <h4 style="color: #000080; margin-top: 0;">🔗 معلومات الاتصال</h4>
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td style="padding: 8px; font-weight: bold;">⏱️ وقت الاتصال الأخير:</td>
+                                    <td style="padding: 8px;" id="lastConnectionTime">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; font-weight: bold;">📶 جودة الاتصال:</td>
+                                    <td style="padding: 8px;">
+                                        <div style="background-color: #c0c0c0; height: 15px; width: 100%; border: 1px inset #808080;">
+                                            <div id="connectionQualityBar" style="background-color: #00aa00; height: 100%; width: 85%;"></div>
+                                        </div>
+                                        <span id="connectionQualityText">جيد (85%)</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; font-weight: bold;">🔄 آخر تحديث:</td>
+                                    <td style="padding: 8px;" id="lastUpdateTime">-</td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
                     
@@ -635,7 +837,7 @@
                 
                 <!-- شريط الحالة -->
                 <div class="status-bar">
-                    <span id="statusText">✅ متصل بالنظام | 👤 <span id="statusUser">-</span> | 🕒 <span id="statusTime">00:00:00</span></span>
+                    <span id="statusText">✅ متصل بالنظام | 👤 <span id="statusUser">-</span> | 🕒 <span id="statusTime">00:00:00</span> | 🌐 <span id="statusConnection">متصل</span> | 👥 <span id="statusOnlineCount">0</span> متصلون</span>
                 </div>
             </div>
             
@@ -645,13 +847,16 @@
     
     <div class="footer">
         <p>© 1999 لوحة التحكم - نظام التحقق 1999</p>
-        <p>الإصدار 1.0.0 | آخر تحديث: 15-12-1999</p>
+        <p>الإصدار 1.1.0 | آخر تحديث: 15-12-1999</p>
         <p id="pageLoadTime">⏱️ وقت تحميل الصفحة: 0.00 ثانية</p>
     </div>
 
     <script>
         let currentUser = null;
         let activities = [];
+        let connectionStatus = 'online'; // online, away, offline
+        let connectedUsers = [];
+        let connectionInterval;
         
         // تحديث الوقت
         function updateDateTime() {
@@ -685,6 +890,9 @@
             // تحميل النشاطات
             loadActivities();
             
+            // تهيئة نظام الاتصال
+            initConnectionSystem();
+            
             // عرض قسم الملف الشخصي افتراضياً
             showSection('profile');
             
@@ -699,6 +907,9 @@
             document.getElementById('confirmDelete').addEventListener('change', function() {
                 document.querySelector('.confirm-delete').disabled = !this.checked;
             });
+            
+            // بدء مراقبة الاتصال
+            startConnectionMonitoring();
         }
         
         // تحميل بيانات المستخدم
@@ -741,6 +952,9 @@
             if (profilePic) {
                 document.getElementById('profilePicture').innerHTML = `<img src="${profilePic}" alt="صورة الملف الشخصي">`;
             }
+            
+            // تحديث حالة الاتصال في الملف الشخصي
+            updateConnectionStatusDisplay();
         }
         
         // تحميل النشاطات
@@ -777,6 +991,301 @@
             });
         }
         
+        // تهيئة نظام الاتصال
+        function initConnectionSystem() {
+            // تحميل حالة الاتصال السابقة
+            const savedStatus = localStorage.getItem(`connectionStatus_${currentUser.email}`);
+            connectionStatus = savedStatus || 'online';
+            
+            // إنشاء مستخدمين متصلين افتراضيين
+            generateConnectedUsers();
+            
+            // تحديث العروض
+            updateConnectionStatusDisplay();
+            updateConnectedUsersDisplay();
+        }
+        
+        // إنشاء مستخدمين متصلين افتراضيين
+        function generateConnectedUsers() {
+            const userNames = [
+                'أحمد محمد', 'سارة عبدالله', 'خالد علي', 'فاطمة حسن', 
+                'محمود إبراهيم', 'نورة سعيد', 'عمر خالد', 'ليندا جمال',
+                'ياسين رامي', 'هدى كمال', 'مصطفى نور', 'ريماس فارس'
+            ];
+            
+            const statuses = ['online', 'away', 'offline'];
+            
+            connectedUsers = [];
+            
+            // إضافة المستخدم الحالي
+            connectedUsers.push({
+                id: currentUser.id || 'user_0',
+                name: currentUser.fullName,
+                email: currentUser.email,
+                status: connectionStatus,
+                lastSeen: new Date().toISOString()
+            });
+            
+            // إضافة مستخدمين افتراضيين
+            for (let i = 0; i < 8; i++) {
+                const status = statuses[Math.floor(Math.random() * statuses.length)];
+                const lastSeen = new Date();
+                lastSeen.setMinutes(lastSeen.getMinutes() - Math.floor(Math.random() * 60));
+                
+                connectedUsers.push({
+                    id: 'user_' + (i + 1),
+                    name: userNames[i % userNames.length],
+                    email: `user${i + 1}@example.com`,
+                    status: status,
+                    lastSeen: lastSeen.toISOString(),
+                    isCurrentUser: false
+                });
+            }
+            
+            // حفظ في localStorage للمحاكاة
+            localStorage.setItem('connectedUsers1999', JSON.stringify(connectedUsers));
+        }
+        
+        // تحديث عرض حالة الاتصال
+        function updateConnectionStatusDisplay() {
+            const indicator = document.getElementById('connectionIndicator');
+            const statusText = document.getElementById('connectionStatusText');
+            const profileConnectionStatus = document.getElementById('profileConnectionStatus');
+            
+            let statusArabic = '';
+            let statusColor = '';
+            
+            switch(connectionStatus) {
+                case 'online':
+                    indicator.className = 'connection-indicator online';
+                    statusArabic = '🟢 متصل';
+                    statusColor = '#006600';
+                    break;
+                case 'away':
+                    indicator.className = 'connection-indicator away';
+                    statusArabic = '🟡 غير متاح';
+                    statusColor = '#996600';
+                    break;
+                case 'offline':
+                    indicator.className = 'connection-indicator offline';
+                    statusArabic = '🔴 غير متصل';
+                    statusColor = '#cc0000';
+                    break;
+            }
+            
+            statusText.textContent = statusArabic;
+            profileConnectionStatus.innerHTML = `<span style="color: ${statusColor};">${statusArabic}</span>`;
+            
+            // تحديث شريط الحالة
+            document.getElementById('statusConnection').textContent = 
+                connectionStatus === 'online' ? 'متصل' : 
+                connectionStatus === 'away' ? 'غير متاح' : 'غير متصل';
+            
+            // تحديث القائمة الجانبية
+            updateSidebarStatus();
+        }
+        
+        // تحديث عرض المستخدمين المتصلين
+        function updateConnectedUsersDisplay() {
+            // تحميل المستخدمين المتصلين
+            const savedUsers = localStorage.getItem('connectedUsers1999');
+            if (savedUsers) {
+                connectedUsers = JSON.parse(savedUsers);
+            }
+            
+            // تحديث المستخدم الحالي
+            const currentUserIndex = connectedUsers.findIndex(u => u.email === currentUser.email);
+            if (currentUserIndex !== -1) {
+                connectedUsers[currentUserIndex].status = connectionStatus;
+                connectedUsers[currentUserIndex].lastSeen = new Date().toISOString();
+            }
+            
+            // حساب الإحصائيات
+            const onlineCount = connectedUsers.filter(u => u.status === 'online').length;
+            const awayCount = connectedUsers.filter(u => u.status === 'away').length;
+            const offlineCount = connectedUsers.filter(u => u.status === 'offline').length;
+            const totalCount = connectedUsers.length;
+            
+            // تحديث العدادات
+            document.getElementById('onlineUsersCount').textContent = onlineCount;
+            document.getElementById('onlineCount').textContent = onlineCount;
+            document.getElementById('awayCount').textContent = awayCount;
+            document.getElementById('offlineCount').textContent = offlineCount;
+            document.getElementById('totalUsersCount').textContent = totalCount;
+            document.getElementById('connectedCount').textContent = onlineCount + awayCount; // المتصلين + غير المتاحين
+            document.getElementById('statusOnlineCount').textContent = onlineCount;
+            
+            // تحديث القائمة الجانبية
+            document.getElementById('sidebarUsersCount').textContent = `👥 ${onlineCount} متصل`;
+            
+            // عرض قائمة المستخدمين المتصلين
+            const usersList = document.getElementById('connectedUsersList');
+            usersList.innerHTML = '';
+            
+            // ترتيب المستخدمين: المتصلون أولاً، ثم غير المتاحين، ثم غير المتصلين
+            const sortedUsers = [...connectedUsers].sort((a, b) => {
+                const statusOrder = { 'online': 0, 'away': 1, 'offline': 2 };
+                return statusOrder[a.status] - statusOrder[b.status];
+            });
+            
+            sortedUsers.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                
+                // لون الحالة
+                let statusColor = '#808080';
+                let statusText = '';
+                switch(user.status) {
+                    case 'online':
+                        statusColor = '#00aa00';
+                        statusText = '🟢 متصل الآن';
+                        break;
+                    case 'away':
+                        statusColor = '#ffaa00';
+                        statusText = '🟡 غير متاح';
+                        break;
+                    case 'offline':
+                        statusColor = '#cc0000';
+                        const lastSeen = new Date(user.lastSeen);
+                        const diffMs = new Date() - lastSeen;
+                        const diffMins = Math.floor(diffMs / 60000);
+                        statusText = `🔴 غير متصل (قبل ${diffMins} دقيقة)`;
+                        break;
+                }
+                
+                // اختصار الاسم للأحرف الأولى
+                const nameParts = user.name.split(' ');
+                const initials = nameParts.map(part => part[0]).join('').toUpperCase();
+                
+                // تحديد إذا كان المستخدم الحالي
+                const isCurrentUser = user.email === currentUser.email;
+                
+                userItem.innerHTML = `
+                    <div style="display: flex; align-items: center; width: 100%;">
+                        <div class="user-avatar" style="background-color: ${isCurrentUser ? '#000080' : '#4040a0'};">
+                            ${initials}
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">
+                                ${user.name} ${isCurrentUser ? '(أنت)' : ''}
+                            </div>
+                            <div class="user-status" style="color: ${statusColor};">
+                                ${statusText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                usersList.appendChild(userItem);
+            });
+            
+            // تحديث وقت آخر تحديث
+            const now = new Date();
+            document.getElementById('lastUpdateTime').textContent = now.toLocaleTimeString('ar-SA');
+            document.getElementById('lastConnectionTime').textContent = now.toLocaleDateString('ar-SA') + ' ' + now.toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'});
+            
+            // تحديث جودة الاتصال (عشوائية للمحاكاة)
+            const quality = 70 + Math.floor(Math.random() * 30); // 70-100%
+            document.getElementById('connectionQualityBar').style.width = `${quality}%`;
+            document.getElementById('connectionQualityText').textContent = 
+                quality >= 90 ? `ممتاز (${quality}%)` : 
+                quality >= 70 ? `جيد (${quality}%)` : 
+                quality >= 50 ? `متوسط (${quality}%)` : `ضعيف (${quality}%)`;
+        }
+        
+        // تحديث حالة القائمة الجانبية
+        function updateSidebarStatus() {
+            const statusText = document.getElementById('sidebarStatus');
+            let status = '';
+            
+            switch(connectionStatus) {
+                case 'online':
+                    status = '🟢 متصل';
+                    break;
+                case 'away':
+                    status = '🟡 غير متاح';
+                    break;
+                case 'offline':
+                    status = '🔴 غير متصل';
+                    break;
+            }
+            
+            statusText.textContent = status;
+        }
+        
+        // تعيين حالة الاتصال
+        function setOnlineStatus(status) {
+            connectionStatus = status;
+            
+            // حفظ في localStorage
+            localStorage.setItem(`connectionStatus_${currentUser.email}`, status);
+            
+            // تحديث العروض
+            updateConnectionStatusDisplay();
+            updateConnectedUsersDisplay();
+            
+            // إضافة نشاط
+            addActivity(`تغيير حالة الاتصال إلى: ${status === 'online' ? 'متصل' : status === 'away' ? 'غير متاح' : 'غير متصل'}`);
+            
+            alert(`✅ تم تغيير حالتك إلى: ${status === 'online' ? 'متصل' : status === 'away' ? 'غير متاح' : 'غير متصل'}`);
+        }
+        
+        // تحديث قائمة المستخدمين المتصلين
+        function refreshConnectedUsers() {
+            // تحديث بعض المستخدمين عشوائياً
+            connectedUsers.forEach(user => {
+                if (user.email !== currentUser.email && Math.random() > 0.7) {
+                    const statuses = ['online', 'away', 'offline'];
+                    const newStatus = statuses[Math.floor(Math.random() * statuses.length)];
+                    user.status = newStatus;
+                    user.lastSeen = new Date().toISOString();
+                }
+            });
+            
+            // حفظ التغييرات
+            localStorage.setItem('connectedUsers1999', JSON.stringify(connectedUsers));
+            
+            // تحديث العرض
+            updateConnectedUsersDisplay();
+            
+            // إضافة نشاط
+            addActivity('تحديث قائمة المستخدمين المتصلين');
+            
+            alert('✅ تم تحديث قائمة المستخدمين المتصلين!');
+        }
+        
+        // اختبار الاتصال
+        function testConnection() {
+            const testResult = Math.random() > 0.2; // 80% نجاح
+            const latency = Math.floor(Math.random() * 100) + 20; // 20-120ms
+            
+            if (testResult) {
+                alert(`✅ اختبار الاتصال ناجح!\n⏱️ وقت الاستجابة: ${latency} مللي ثانية\n📶 الجودة: ${latency < 50 ? 'ممتازة' : latency < 100 ? 'جيدة' : 'مقبولة'}`);
+                addActivity(`اختبار اتصال ناجح (${latency}ms)`);
+            } else {
+                alert('❌ فشل اختبار الاتصال!\nيرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.');
+                addActivity('اختبار اتصال فاشل');
+            }
+        }
+        
+        // بدء مراقبة الاتصال
+        function startConnectionMonitoring() {
+            // تحديث حالة الاتصال كل 30 ثانية
+            connectionInterval = setInterval(() => {
+                if (connectionStatus === 'online') {
+                    // تحديث وقت آخر ظهور للمستخدم الحالي
+                    const currentUserIndex = connectedUsers.findIndex(u => u.email === currentUser.email);
+                    if (currentUserIndex !== -1) {
+                        connectedUsers[currentUserIndex].lastSeen = new Date().toISOString();
+                        localStorage.setItem('connectedUsers1999', JSON.stringify(connectedUsers));
+                    }
+                    
+                    // تحديث العرض بشكل دوري
+                    updateConnectedUsersDisplay();
+                }
+            }, 30000); // كل 30 ثانية
+        }
+        
         // عرض القسم المحدد
         function showSection(sectionId) {
             // إخفاء جميع الأقسام
@@ -786,6 +1295,11 @@
             
             // إظهار القسم المطلوب
             document.getElementById(sectionId).style.display = 'block';
+            
+            // إذا كان قسم الاتصال، قم بتحديث العرض
+            if (sectionId === 'connection') {
+                updateConnectedUsersDisplay();
+            }
             
             // إضافة نشاط
             if (sectionId !== 'profile') {
@@ -797,6 +1311,7 @@
         function getSectionName(sectionId) {
             const names = {
                 'profile': 'الملف الشخصي',
+                'connection': 'حالة الاتصال',
                 'editProfile': 'تعديل الملف الشخصي',
                 'changePassword': 'تغيير كلمة المرور',
                 'deleteAccount': 'حذف الحساب',
@@ -1004,8 +1519,14 @@
             // حذف الصورة الشخصية
             localStorage.removeItem(`profilePic_${currentUser.email}`);
             
+            // حذف حالة الاتصال
+            localStorage.removeItem(`connectionStatus_${currentUser.email}`);
+            
             // حذف المستخدم الحالي
             localStorage.removeItem('currentUser1999');
+            
+            // إيقاف مراقبة الاتصال
+            clearInterval(connectionInterval);
             
             // رسالة وداع
             alert('👋 تم حذف حسابك بنجاح. نأسف لرحيلك!');
@@ -1041,6 +1562,8 @@
             const data = {
                 user: currentUser,
                 activities: activities,
+                connectionStatus: connectionStatus,
+                connectedUsers: connectedUsers,
                 exportDate: new Date().toLocaleString('ar-SA')
             };
             
@@ -1068,11 +1591,23 @@
         // تسجيل الخروج
         function logout() {
             if (confirm('هل تريد تسجيل الخروج؟')) {
+                // تعيين حالة غير متصل عند الخروج
+                setOnlineStatus('offline');
+                
                 addActivity('تسجيل الخروج من النظام');
                 localStorage.removeItem('currentUser1999');
+                
+                // إيقاف مراقبة الاتصال
+                clearInterval(connectionInterval);
+                
                 window.location.href = 'login.html';
             }
         }
+        
+        // تنظيف الفاصل الزمني عند إغلاق الصفحة
+        window.addEventListener('beforeunload', function() {
+            clearInterval(connectionInterval);
+        });
     </script>
 </body>
 </html>
