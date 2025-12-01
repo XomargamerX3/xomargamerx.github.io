@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="windows-1256">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>التحقق من الحساب - 1999</title>
+    <style>
+        body {
+            background-color: #c0c0c0;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJUlEQVQoU2NkYGAwZkADGAskB4NYwSiBdAykA8S5E4gRzA8AIY8HAXlQ9rMAAAAASUVORK5CYII=');
+            margin: 0;
+            padding: 20px;
+            font-family: "Arial", "Times New Roman", serif;
+            color: #000000;
+        }
+        
+        .main-frame {
+            width: 800px;
+            margin: 20px auto;
+            border: 2px outset #808080;
+            background-color: #c0c0c0;
+            padding: 2px;
+        }
+        
+        .title-bar {
+            background: linear-gradient(to right, #000080, #1084d0);
+            color: white;
+            padding: 4px 8px;
+            font-weight: bold;
+            font-size: 13px;
+            border: 1px inset #808080;
+        }
+        
+        .content {
+            background-color: #ffffff;
+            border: 2px inset #808080;
+            padding: 30px;
+            min-height: 400px;
+        }
+        
+        .verification-box {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .code-inputs {
+            margin: 20px 0;
+        }
+        
+        .code-inputs input {
+            width: 40px;
+            height: 50px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0 2px;
+            border: 3px inset #808080;
+            font-family: "Courier New", monospace;
+        }
+        
+        .code-inputs input:focus {
+            border-color: #000080;
+            outline: none;
+        }
+        
+        .verify-button {
+            padding: 10px 30px;
+            background-color: #008000;
+            color: white;
+            border: 3px outset #00cc00;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        .verify-button:hover {
+            background-color: #00aa00;
+            border: 3px inset #00cc00;
+        }
+        
+        .message {
+            padding: 10px;
+            margin: 15px 0;
+            border: 2px groove #808080;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .success {
+            background-color: #ccffcc;
+            color: #006600;
+            border-color: #00cc00;
+        }
+        
+        .error {
+            background-color: #ffcccc;
+            color: #cc0000;
+            border-color: #ff0000;
+        }
+        
+        .info {
+            background-color: #ffffcc;
+            color: #996600;
+            border-color: #ffcc00;
+        }
+        
+        .timer {
+            font-family: "Courier New", monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff0000;
+            background-color: #000000;
+            padding: 5px 10px;
+            display: inline-block;
+            margin: 10px;
+            border: 2px groove #808080;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 10px;
+            background-color: #c0c0c0;
+            border-top: 2px groove #808080;
+            font-size: 11px;
+            color: #404040;
+        }
+        
+        .datetime {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #000000;
+            color: #00ff00;
+            padding: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 12px;
+            border: 1px solid #00ff00;
+        }
+    </style>
+</head>
+<body onload="initVerification()">
+    
+    <div class="datetime" id="datetime">00:00:00</div>
+    
+    <div class="main-frame">
+        <div class="title-bar">
+            🔐 التحقق من الحساب - نظام التحقق 1999
+        </div>
+        
+        <div class="content">
+            <div class="verification-box">
+                <h2 style="color: #000080; margin-bottom: 20px;">
+                    التحقق من البريد الإلكتروني
+                </h2>
+                
+                <div class="message info" id="infoMessage">
+                    📨 تم إرسال رمز التحقق إلى بريدك الإلكتروني
+                </div>
+                
+                <div class="message" id="resultMessage" style="display: none;"></div>
+                
+                <p>أدخل رمز التحقق المكون من 6 أرقام:</p>
+                
+                <div class="code-inputs">
+                    <input type="text" maxlength="1" oninput="moveToNext(this, 1)" onkeyup="moveToPrevious(event, this)">
+                    <input type="text" maxlength="1" oninput="moveToNext(this, 2)" onkeyup="moveToPrevious(event, this)">
+                    <input type="text" maxlength="1" oninput="moveToNext(this, 3)" onkeyup="moveToPrevious(event, this)">
+                    <input type="text" maxlength="1" oninput="moveToNext(this, 4)" onkeyup="moveToPrevious(event, this)">
+                    <input type="text" maxlength="1" oninput="moveToNext(this, 5)" onkeyup="moveToPrevious(event, this)">
+                    <input type="text" maxlength="1" oninput="moveToNext(this, 6)" onkeyup="moveToPrevious(event, this)">
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <span class="timer" id="timer">05:00</span>
+                </div>
+                
+                <button class="verify-button" onclick="verifyCode()">
+                    ✅ تأكيد الرمز
+                </button>
+                
+                <button class="verify-button" onclick="resendCode()" id="resendBtn" disabled>
+                    🔄 إعادة إرسال
+                </button>
+                
+                <div style="margin-top: 30px;">
+                    <a href="dashboard.html" style="color: #000080; text-decoration: none;">
+                        ⏩ تخطي التحقق (للاختبار)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>© 1999 نظام التحقق - الإصدار 1.0</p>
+        <p>جميع الحقوق محفوظة</p>
+    </div>
+
+    <script>
+        let verificationCode = '';
+        let countdownInterval;
+        let resendTimer = 60;
+        
+        // تحديث الوقت
+        function updateDateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('ar-SA');
+            document.getElementById('datetime').textContent = time;
+            setTimeout(updateDateTime, 1000);
+        }
+        
+        // تهيئة التحقق
+        function initVerification() {
+            updateDateTime();
+            
+            // التحقق من وجود مستخدم
+            const currentUser = JSON.parse(localStorage.getItem('currentUser1999'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // إنشاء رمز تحقق
+            verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // عرض الرمز للمستخدم (في بيئة الاختبار)
+            document.getElementById('infoMessage').innerHTML = 
+                `📨 رمز التحقق للاختبار: <strong>${verificationCode}</strong>`;
+            
+            // بدء المؤقت
+            startCountdown();
+        }
+        
+        // بدء المؤقت
+        function startCountdown() {
+            let timeLeft = 5 * 60; // 5 دقائق
+            const timerElement = document.getElementById('timer');
+            
+            clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('resendBtn').disabled = false;
+                }
+                
+                timeLeft--;
+            }, 1000);
+            
+            // تفعيل زر إعادة الإرسال بعد 60 ثانية
+            setTimeout(() => {
+                document.getElementById('resendBtn').disabled = false;
+            }, 60000);
+        }
+        
+        // التحقق من الرمز
+        function verifyCode() {
+            // جمع الرمز من الحقول
+            const codeInputs = document.querySelectorAll('.code-inputs input');
+            let enteredCode = '';
+            
+            codeInputs.forEach(input => {
+                enteredCode += input.value;
+            });
+            
+            // التحقق
+            if (enteredCode === verificationCode) {
+                // تحديث حالة المستخدم
+                const users = JSON.parse(localStorage.getItem('users1999') || '[]');
+                const currentUser = JSON.parse(localStorage.getItem('currentUser1999'));
+                
+                const userIndex = users.findIndex(u => u.email === currentUser.email);
+                if (userIndex !== -1) {
+                    users[userIndex].verified = true;
+                    users[userIndex].verifiedAt = new Date().toLocaleString('ar-SA');
+                    localStorage.setItem('users1999', JSON.stringify(users));
+                    
+                    currentUser.verified = true;
+                    localStorage.setItem('currentUser1999', JSON.stringify(currentUser));
+                }
+                
+                showMessage('✅ تم التحقق بنجاح! جاري التوجيه...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            } else {
+                showMessage('❌ رمز التحقق غير صحيح', 'error');
+                
+                // مسح الحقول
+                codeInputs.forEach(input => {
+                    input.value = '';
+                });
+                codeInputs[0].focus();
+            }
+        }
+        
+        // إعادة إرسال الرمز
+        function resendCode() {
+            verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            document.getElementById('infoMessage').innerHTML = 
+                `🔄 رمز التحقق الجديد: <strong>${verificationCode}</strong>`;
+            
+            document.getElementById('resendBtn').disabled = true;
+            
+            // إعادة تعيين المؤقت
+            startCountdown();
+            
+            // تفعيل الزر بعد 60 ثانية
+            setTimeout(() => {
+                document.getElementById('resendBtn').disabled = false;
+            }, 60000);
+            
+            showMessage('🔄 تم إعادة إرسال رمز التحقق', 'success');
+        }
+        
+        // عرض رسالة
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('resultMessage');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+        }
+        
+        // التنقل بين حقول الرمز
+        function moveToNext(input, nextIndex) {
+            if (input.value.length === 1) {
+                const nextInput = document.querySelector(`.code-inputs input:nth-child(${nextIndex + 1})`);
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+        }
+        
+        function moveToPrevious(event, input) {
+            if (event.key === 'Backspace' && input.value === '') {
+                const previousInput = input.previousElementSibling;
+                if (previousInput) {
+                    previousInput.focus();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
