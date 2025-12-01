@@ -4,6 +4,8 @@
     <meta charset="windows-1256">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>التحقق من الحساب - 1999</title>
+    <!-- إضافة EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         body {
             background-color: #c0c0c0;
@@ -80,6 +82,12 @@
             border: 3px inset #00cc00;
         }
         
+        .verify-button:disabled {
+            background-color: #808080;
+            border-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+        
         .message {
             padding: 10px;
             margin: 15px 0;
@@ -104,6 +112,12 @@
             background-color: #ffffcc;
             color: #996600;
             border-color: #ffcc00;
+        }
+        
+        .warning {
+            background-color: #ffe6cc;
+            color: #cc6600;
+            border-color: #ff9900;
         }
         
         .timer {
@@ -139,6 +153,21 @@
             font-size: 12px;
             border: 1px solid #00ff00;
         }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #000080;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body onload="initVerification()">
@@ -157,7 +186,7 @@
                 </h2>
                 
                 <div class="message info" id="infoMessage">
-                    📨 تم إرسال رمز التحقق إلى بريدك الإلكتروني
+                    📨 جاري إعداد رمز التحقق...
                 </div>
                 
                 <div class="message" id="resultMessage" style="display: none;"></div>
@@ -177,12 +206,12 @@
                     <span class="timer" id="timer">05:00</span>
                 </div>
                 
-                <button class="verify-button" onclick="verifyCode()">
+                <button class="verify-button" onclick="verifyCode()" id="verifyBtn">
                     ✅ تأكيد الرمز
                 </button>
                 
                 <button class="verify-button" onclick="resendCode()" id="resendBtn" disabled>
-                    🔄 إعادة إرسال
+                    <span id="resendText">🔄 إعادة إرسال (60)</span>
                 </button>
                 
                 <div style="margin-top: 30px;">
@@ -200,9 +229,22 @@
     </div>
 
     <script>
+        // 🔧 إعدادات EmailJS - ضع مفاتيحك هنا
+        const EMAILJS_CONFIG = {
+            PUBLIC_KEY: 'YCvMQ3Y2SLnBo_sD_',
+            SERVICE_ID: 'service_1q3p5k8',
+            TEMPLATE_ID: 'template_zdp4w2n',
+            PRIVATE_KEY: 'PwurIzs1ncFVePbhcCCsi' // للحفظ فقط، لا تستخدم في المتصفح
+        };
+        
         let verificationCode = '';
         let countdownInterval;
         let resendTimer = 60;
+        let currentUser = null;
+        let resendInterval;
+        
+        // تهيئة EmailJS
+        emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
         
         // تحديث الوقت
         function updateDateTime() {
@@ -213,31 +255,80 @@
         }
         
         // تهيئة التحقق
-        function initVerification() {
+        async function initVerification() {
             updateDateTime();
             
             // التحقق من وجود مستخدم
-            const currentUser = JSON.parse(localStorage.getItem('currentUser1999'));
+            currentUser = JSON.parse(localStorage.getItem('currentUser1999'));
             if (!currentUser) {
                 window.location.href = 'login.html';
                 return;
             }
             
+            // إرسال رمز التحقق
+            await sendVerificationCode();
+        }
+        
+        // إرسال رمز التحقق عبر EmailJS
+        async function sendVerificationCode() {
+            if (!currentUser) return;
+            
             // إنشاء رمز تحقق
             verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
             
-            // عرض الرمز للمستخدم (في بيئة الاختبار)
+            // عرض حالة الإرسال
             document.getElementById('infoMessage').innerHTML = 
-                `📨 رمز التحقق للاختبار: <strong>${verificationCode}</strong>`;
+                '<div class="loading"></div> 📨 جاري إرسال رمز التحقق...';
             
-            // بدء المؤقت
-            startCountdown();
+            try {
+                // إعداد بيانات البريد
+                const templateParams = {
+                    to_email: currentUser.email,
+                    user_name: currentUser.fullName,
+                    verification_code: verificationCode,
+                    from_name: "نظام التحقق 1999",
+                    website_name: "نظام التحقق 1999",
+                    expiration_time: "5",
+                    date: new Date().toLocaleDateString('ar-SA'),
+                    time: new Date().toLocaleTimeString('ar-SA'),
+                    email_id: "MSG-" + Date.now().toString().slice(-6)
+                };
+                
+                // إرسال البريد عبر EmailJS
+                const response = await emailjs.send(
+                    EMAILJS_CONFIG.SERVICE_ID,
+                    EMAILJS_CONFIG.TEMPLATE_ID,
+                    templateParams
+                );
+                
+                // النجاح
+                document.getElementById('infoMessage').innerHTML = 
+                    `✅ تم إرسال رمز التحقق إلى:<br><strong>${currentUser.email}</strong>`;
+                document.getElementById('infoMessage').className = 'message success';
+                
+                // بدء المؤقت
+                startCountdown();
+                startResendTimer();
+                
+            } catch (error) {
+                // في حالة الخطأ، نعرض الرمز للمستخدم للاختبار
+                document.getElementById('infoMessage').innerHTML = 
+                    `⚠️ لم نتمكن من إرسال البريد<br>🔐 الرمز للاختبار: <strong>${verificationCode}</strong>`;
+                document.getElementById('infoMessage').className = 'message warning';
+                
+                // بدء المؤقت مع الرمز المعروض
+                startCountdown();
+                startResendTimer();
+                
+                console.error('EmailJS Error:', error);
+            }
         }
         
-        // بدء المؤقت
+        // بدء المؤقت التنازلي
         function startCountdown() {
             let timeLeft = 5 * 60; // 5 دقائق
             const timerElement = document.getElementById('timer');
+            const verifyBtn = document.getElementById('verifyBtn');
             
             clearInterval(countdownInterval);
             
@@ -249,16 +340,49 @@
                 
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    document.getElementById('resendBtn').disabled = false;
+                    verifyBtn.disabled = true;
+                    timerElement.style.color = '#808080';
+                    showMessage('⏰ انتهت صلاحية رمز التحقق!', 'error');
                 }
                 
                 timeLeft--;
             }, 1000);
+        }
+        
+        // بدء مؤقت إعادة الإرسال
+        function startResendTimer() {
+            resendTimer = 60;
+            const resendBtn = document.getElementById('resendBtn');
+            const resendText = document.getElementById('resendText');
             
-            // تفعيل زر إعادة الإرسال بعد 60 ثانية
-            setTimeout(() => {
-                document.getElementById('resendBtn').disabled = false;
-            }, 60000);
+            resendBtn.disabled = true;
+            
+            clearInterval(resendInterval);
+            resendInterval = setInterval(() => {
+                resendText.textContent = `🔄 إعادة إرسال (${resendTimer})`;
+                
+                if (resendTimer <= 0) {
+                    clearInterval(resendInterval);
+                    resendBtn.disabled = false;
+                    resendText.textContent = '🔄 إعادة إرسال';
+                }
+                
+                resendTimer--;
+            }, 1000);
+        }
+        
+        // إعادة إرسال الرمز
+        async function resendCode() {
+            const resendBtn = document.getElementById('resendBtn');
+            const resendText = document.getElementById('resendText');
+            
+            resendBtn.disabled = true;
+            resendText.innerHTML = '<div class="loading"></div> جاري الإرسال...';
+            
+            // إعادة إرسال الرمز
+            await sendVerificationCode();
+            
+            showMessage('🔄 تم إعادة إرسال رمز التحقق', 'success');
         }
         
         // التحقق من الرمز
@@ -271,13 +395,21 @@
                 enteredCode += input.value;
             });
             
-            // التحقق
+            // التحقق من صحة الإدخال
+            if (enteredCode.length !== 6) {
+                showMessage('⚠️ يرجى إدخال جميع الأرقام الستة', 'error');
+                return;
+            }
+            
+            // التحقق من الرمز
             if (enteredCode === verificationCode) {
+                clearInterval(countdownInterval);
+                clearInterval(resendInterval);
+                
                 // تحديث حالة المستخدم
                 const users = JSON.parse(localStorage.getItem('users1999') || '[]');
-                const currentUser = JSON.parse(localStorage.getItem('currentUser1999'));
-                
                 const userIndex = users.findIndex(u => u.email === currentUser.email);
+                
                 if (userIndex !== -1) {
                     users[userIndex].verified = true;
                     users[userIndex].verifiedAt = new Date().toLocaleString('ar-SA');
@@ -289,9 +421,11 @@
                 
                 showMessage('✅ تم التحقق بنجاح! جاري التوجيه...', 'success');
                 
+                // التوجيه بعد ثانيتين
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 2000);
+                
             } else {
                 showMessage('❌ رمز التحقق غير صحيح', 'error');
                 
@@ -303,32 +437,17 @@
             }
         }
         
-        // إعادة إرسال الرمز
-        function resendCode() {
-            verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            document.getElementById('infoMessage').innerHTML = 
-                `🔄 رمز التحقق الجديد: <strong>${verificationCode}</strong>`;
-            
-            document.getElementById('resendBtn').disabled = true;
-            
-            // إعادة تعيين المؤقت
-            startCountdown();
-            
-            // تفعيل الزر بعد 60 ثانية
-            setTimeout(() => {
-                document.getElementById('resendBtn').disabled = false;
-            }, 60000);
-            
-            showMessage('🔄 تم إعادة إرسال رمز التحقق', 'success');
-        }
-        
         // عرض رسالة
         function showMessage(text, type) {
             const messageDiv = document.getElementById('resultMessage');
             messageDiv.textContent = text;
             messageDiv.className = 'message ' + type;
             messageDiv.style.display = 'block';
+            
+            // إخفاء الرسالة بعد 5 ثواني
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
         }
         
         // التنقل بين حقول الرمز
@@ -349,6 +468,31 @@
                 }
             }
         }
+        
+        // اختبار الاتصال مع EmailJS
+        async function testEmailJSConnection() {
+            try {
+                const response = await emailjs.send(
+                    EMAILJS_CONFIG.SERVICE_ID,
+                    EMAILJS_CONFIG.TEMPLATE_ID,
+                    {
+                        to_email: "test@example.com",
+                        user_name: "اختبار الاتصال",
+                        verification_code: "123456"
+                    }
+                );
+                console.log('✅ EmailJS Connection Test: Success', response);
+                return true;
+            } catch (error) {
+                console.error('❌ EmailJS Connection Test: Failed', error);
+                return false;
+            }
+        }
+        
+        // اختبار الاتصال عند التحميل
+        window.onload = async function() {
+            await testEmailJSConnection();
+        };
     </script>
 </body>
 </html>
