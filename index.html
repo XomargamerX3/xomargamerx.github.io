@@ -1,167 +1,302 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام التسجيل</title>
+    <meta charset="windows-1256">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>الصفحة الرئيسية 1999</title>
     <style>
+        /* تصميم كلاسيكي من 1999 */
         body {
-            font-family: Arial, sans-serif;
-            max-width: 400px;
-            margin: 100px auto;
+            background-color: #c0c0c0;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJUlEQVQoU2NkYGAwZkADGAskB4NYwSiBdAykA8S5E4gRzA8AIY8HAXlQ9rMAAAAASUVORK5CYII=');
+            margin: 0;
             padding: 20px;
-            background: #f5f5f5;
+            font-family: "Arial", "Times New Roman", serif;
+            color: #000000;
         }
-        .form-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        
+        /* إطار الصفحة */
+        .main-frame {
+            width: 800px;
+            margin: 0 auto;
+            border: 2px outset #808080;
+            background-color: #c0c0c0;
+            padding: 2px;
         }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #007bff;
+        
+        /* شريط العنوان */
+        .title-bar {
+            background: linear-gradient(to right, #000080, #1084d0);
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            padding: 4px 8px;
+            font-weight: bold;
+            font-size: 13px;
+            border: 1px inset #808080;
         }
-        .hidden {
-            display: none;
+        
+        /* المحتوى */
+        .content {
+            background-color: #ffffff;
+            border: 2px inset #808080;
+            padding: 20px;
+            min-height: 500px;
         }
-        .tabs {
-            display: flex;
+        
+        /* القائمة */
+        .menu-bar {
+            background-color: #c0c0c0;
+            border: 2px outset #808080;
+            padding: 8px;
             margin-bottom: 20px;
         }
-        .tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
+        
+        .menu-bar a {
+            color: #000080;
+            text-decoration: none;
+            padding: 4px 12px;
+            margin-right: 10px;
+            border: 1px outset #808080;
+            background-color: #e0e0e0;
         }
-        .tab.active {
-            border-bottom: 2px solid #007bff;
-            color: #007bff;
+        
+        .menu-bar a:hover {
+            border: 1px inset #808080;
+            background-color: #d0d0d0;
+        }
+        
+        /* الترحيب */
+        .welcome-box {
+            background-color: #ffffcc;
+            border: 2px groove #808080;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        /* الإعلان */
+        .ad-box {
+            width: 468px;
+            height: 60px;
+            background-color: #ffffff;
+            border: 2px outset #808080;
+            margin: 20px auto;
+            text-align: center;
+            line-height: 60px;
+            font-weight: bold;
+            color: #ff0000;
+        }
+        
+        /* الأقسام */
+        .section {
+            background-color: #f0f0f0;
+            border: 2px inset #808080;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .section h3 {
+            color: #000080;
+            border-bottom: 1px dotted #808080;
+            padding-bottom: 5px;
+        }
+        
+        /* الأزرار */
+        .big-button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 12px;
+            background-color: #000080;
+            color: white;
+            border: 3px outset #4040ff;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .big-button:hover {
+            background-color: #0000ff;
+            border: 3px inset #4040ff;
+        }
+        
+        /* التذييل */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 10px;
+            background-color: #c0c0c0;
+            border-top: 2px groove #808080;
+            font-size: 11px;
+            color: #404040;
+        }
+        
+        /* العدادات */
+        .counter {
+            background-color: #000000;
+            color: #00ff00;
+            padding: 5px 10px;
+            font-family: "Courier New", monospace;
+            font-size: 12px;
+            border: 1px solid #00ff00;
+            display: inline-block;
+        }
+        
+        /* اليوم والتاريخ */
+        .datetime {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #000000;
+            color: #00ff00;
+            padding: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 12px;
+            border: 1px solid #00ff00;
         }
     </style>
 </head>
-<body>
-    <div class="form-container">
-        <div class="tabs">
-            <div class="tab active" onclick="showTab('login')">تسجيل الدخول</div>
-            <div class="tab" onclick="showTab('register')">إنشاء حساب</div>
-        </div>
+<body onload="updateDateTime()">
+    
+    <!-- اليوم والتاريخ -->
+    <div class="datetime" id="datetime">الجمعة 15-12-1999<br>00:00:00</div>
 
-        <!-- نموذج تسجيل الدخول -->
-        <div id="login-form">
-            <h2>تسجيل الدخول</h2>
-            <input type="email" id="login-email" placeholder="البريد الإلكتروني">
-            <input type="password" id="login-password" placeholder="كلمة المرور">
-            <button onclick="login()">تسجيل الدخول</button>
+    <!-- الإطار الرئيسي -->
+    <div class="main-frame">
+        
+        <!-- شريط العنوان -->
+        <div class="title-bar">
+            🖥️ الصفحة الرئيسية - موقعنا 1999 - الإصدار 1.0
         </div>
-
-        <!-- نموذج إنشاء حساب -->
-        <div id="register-form" class="hidden">
-            <h2>إنشاء حساب جديد</h2>
-            <input type="text" id="register-name" placeholder="الاسم الكامل">
-            <input type="email" id="register-email" placeholder="البريد الإلكتروني">
-            <input type="password" id="register-password" placeholder="كلمة المرور">
-            <button onclick="register()">إنشاء حساب</button>
+        
+        <!-- المحتوى -->
+        <div class="content">
+            
+            <!-- القائمة -->
+            <div class="menu-bar">
+                <a href="#home">🏠 الرئيسية</a>
+                <a href="#about">📄 عن الموقع</a>
+                <a href="#services">🛠️ الخدمات</a>
+                <a href="#contact">📞 اتصل بنا</a>
+                <a href="login.html">🔐 تسجيل الدخول</a>
+                <a href="register.html">📝 التسجيل</a>
+            </div>
+            
+            <!-- صندوق الترحيب -->
+            <div class="welcome-box">
+                <h2 style="color: #000080; margin-bottom: 10px;">🎯 مرحباً بك في موقعنا!</h2>
+                <p style="font-size: 14px;">أهلاً وسهلاً بك في الموقع الرسمي لنظام التحقق والتسجيل</p>
+                <div style="margin-top: 15px;">
+                    <span class="counter">👥 الزوار: 012345</span>
+                    <span class="counter" style="margin-right: 20px;">📊 الصفحات: 001234</span>
+                </div>
+            </div>
+            
+            <!-- زر كبير للتسجيل -->
+            <a href="register.html" class="big-button">
+                🚀 ابدأ التسجيل الآن
+            </a>
+            
+            <!-- الإعلان -->
+            <div class="ad-box">
+                🔥 موقعنا يعمل على الإنترنت! زورونا دائماً
+            </div>
+            
+            <!-- قسم المميزات -->
+            <div class="section" id="about">
+                <h3>⭐ مميزات موقعنا:</h3>
+                <ul style="margin-right: 20px;">
+                    <li>🔒 نظام تسجيل دخول آمن</li>
+                    <li>📧 تحقق من البريد الإلكتروني</li>
+                    <li>💾 حفظ البيانات تلقائياً</li>
+                    <li>🔄 تحديثات مستمرة</li>
+                    <li>🎯 واجهة مستخدم سهلة</li>
+                </ul>
+            </div>
+            
+            <!-- قسم الخدمات -->
+            <div class="section" id="services">
+                <h3>🛠️ خدماتنا:</h3>
+                <table width="100%" cellpadding="5" cellspacing="0" border="0">
+                    <tr>
+                        <td width="50%" valign="top">
+                            <strong>🔐 نظام التسجيل:</strong><br>
+                            إنشاء حسابات جديدة<br>
+                            تحقق من البريد<br>
+                            حفظ البيانات
+                        </td>
+                        <td width="50%" valign="top">
+                            <strong>👤 إدارة الحسابات:</strong><br>
+                            تعديل المعلومات<br>
+                            تغيير كلمة المرور<br>
+                            مشاهدة السجل
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- قسم الاتصال -->
+            <div class="section" id="contact">
+                <h3>📞 للتواصل معنا:</h3>
+                <p>📧 البريد الإلكتروني: <strong>support@site1999.com</strong></p>
+                <p>📞 الهاتف: <strong>012-345-6789</strong></p>
+                <p>📍 العنوان: <strong>شارع الإنترنت، مدينة الويب</strong></p>
+            </div>
+            
+            <!-- زر الدخول -->
+            <a href="login.html" class="big-button" style="background-color: #008000;">
+                🔐 الدخول إلى حسابي
+            </a>
+            
         </div>
-
-        <!-- المحتوى بعد التسجيل -->
-        <div id="dashboard" class="hidden">
-            <h2>مرحباً, <span id="user-name"></span>! 👋</h2>
-            <p>لقد سجلت الدخول بنجاح</p>
-            <button onclick="logout()">تسجيل الخروج</button>
-        </div>
+        
+    </div>
+    
+    <!-- التذييل -->
+    <div class="footer">
+        <p>© 1999 موقعنا - جميع الحقوق محفوظة</p>
+        <p>الإصدار 1.0.0 - تم التطوير باستخدام HTML 4.0</p>
+        <p>أفضل مشاهدة بدقة 800×600 مع متصفح إنترنت إكسبلورر 5.0</p>
+        <p>🕒 وقت التحميل: <span id="loadTime">0</span> ثانية</p>
     </div>
 
-    <!-- إضافة Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    
     <script>
-        // تكوين Firebase - ستحتاج إلى إضافة بيانات مشروعك هنا
-        const firebaseConfig = {
-            apiKey: "your-api-key",
-            authDomain: "your-project.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "your-app-id"
+        // تحديث التاريخ والوقت
+        function updateDateTime() {
+            const now = new Date();
+            const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+            const day = days[now.getDay()];
+            const date = now.toLocaleDateString('ar-SA');
+            const time = now.toLocaleTimeString('ar-SA');
+            
+            document.getElementById('datetime').innerHTML = 
+                `${day} ${date}<br>${time}`;
+            
+            // تحديث وقت التحميل
+            const loadTime = (performance.now() / 1000).toFixed(2);
+            document.getElementById('loadTime').textContent = loadTime;
+            
+            setTimeout(updateDateTime, 1000);
+        }
+        
+        // عداد الزوار (عشوائي)
+        function updateCounter() {
+            const visitors = Math.floor(Math.random() * 10000) + 1000;
+            document.querySelectorAll('.counter')[0].textContent = `👥 الزوار: ${visitors.toString().padStart(6, '0')}`;
+            
+            const pages = Math.floor(Math.random() * 5000) + 500;
+            document.querySelectorAll('.counter')[1].textContent = `📊 الصفحات: ${pages.toString().padStart(6, '0')}`;
+        }
+        
+        // عند تحميل الصفحة
+        window.onload = function() {
+            updateDateTime();
+            updateCounter();
+            // تحديث العداد كل 10 ثواني
+            setInterval(updateCounter, 10000);
         };
-
-        // تهيئة Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        function showTab(tabName) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(tab => {
-                if (tab.textContent.includes(tabName === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب')) {
-                    tab.classList.add('active');
-                }
-            });
-
-            document.getElementById('login-form').classList.toggle('hidden', tabName !== 'login');
-            document.getElementById('register-form').classList.toggle('hidden', tabName !== 'register');
-        }
-
-        async function register() {
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const name = document.getElementById('register-name').value;
-
-            try {
-                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-                await userCredential.user.updateProfile({ displayName: name });
-                alert('تم إنشاء الحساب بنجاح!');
-                showDashboard(userCredential.user);
-            } catch (error) {
-                alert('حدث خطأ: ' + error.message);
-            }
-        }
-
-        async function login() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            try {
-                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-                showDashboard(userCredential.user);
-            } catch (error) {
-                alert('خطأ في البريد الإلكتروني أو كلمة المرور');
-            }
-        }
-
-        function logout() {
-            firebase.auth().signOut();
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('login-form').classList.remove('hidden');
-        }
-
-        function showDashboard(user) {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('register-form').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-            document.getElementById('user-name').textContent = user.displayName || user.email;
-        }
-
-        // التحقق من حالة المستخدم
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                showDashboard(user);
-            }
-        });
     </script>
+    
 </body>
 </html>
